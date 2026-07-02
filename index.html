@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pi Command Center</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <h1>System Control Hub</h1>
+
+    <iframe name="cam_driver" style="display:none;"></iframe>
+
+    <div class="grid">
+        <div class="card">
+            <h3>Live Camera Feed</h3>
+            <img class="video-feed" src="http://10.0.7.65:8081" alt="Live Stream">
+            
+            <div class="ptz-controller">
+                <div class="row">
+                    <button data-url="http://10.0.4.55/cgi/ptdc.cgi?command=set_relative_pos&posX=0&posY=10" class="btn ptz-btn">▲ Up</button>
+                </div>
+                <div class="row">
+                    <button data-url="http://10.0.4.55/cgi/ptdc.cgi?command=set_relative_pos&posX=-10&posY=0" class="btn ptz-btn">◀ Left</button>
+                    <button data-url="http://10.0.4.55/cgi/ptdc.cgi?command=go_home" class="btn home-btn ptz-btn">⌂ Home</button>
+                    <button data-url="http://10.0.4.55/cgi/ptdc.cgi?command=set_relative_pos&posX=10&posY=0" class="btn ptz-btn">Right ▶</button>
+                </div>
+                <div class="row">
+                    <button data-url="http://10.0.4.55/cgi/ptdc.cgi?command=set_relative_pos&posX=0&posY=-10" class="btn ptz-btn">▼ Down</button>
+                </div>
+                
+                <div class="row" style="margin-top: 10px;">
+                    <a href="http://10.0.4.55" target="_blank" class="btn unlock-btn">🔓 Unlock Motors</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3>System Status</h3>
+            <p>Framework Loop: <strong>Ragnarok</strong></p>
+            <p>Device Node: <strong>Shelly</strong></p>
+            <hr>
+            <p>Diagnostics: Active pipeline check initialized.</p>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
