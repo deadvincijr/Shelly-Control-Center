@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pi Command Center</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="./style.css">
 </head>
 <body>
 
@@ -44,8 +44,18 @@
             <hr>
             <p>Diagnostics: Active pipeline check initialized. HTML Functioning</p>
         </div>
+
+        <!-- Card for the K1C 3D Printer Video Feed -->
+        <div class="card">
+            <h3>Creality K1C Feed</h3>
+            <p>Live WebRTC stream from the 3D printer.</p>
+            <video id="k1c-video" class="video-feed" autoplay muted playsinline>
+                Your browser does not support the video tag.
+            </video>
+        </div>
     </div>
 
-    <script src="script.js"></script>
+    <script src="./script.js"></script>
+
 </body>
 </html>
