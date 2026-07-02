@@ -3,15 +3,20 @@ console.log("Telemetry backend checking pipelines for Creality K1C diagnostics..
 
 document.addEventListener("DOMContentLoaded", () => {
     const buttons = document.querySelectorAll(".ptz-btn");
-    const driverFrame = document.getElementsByName("cam_driver")[0];
 
     buttons.forEach(button => {
-        button.addEventListener("click", () => {
-            const targetUrl = button.getAttribute("data-url");
-            console.log(`Routing execution string to camera node: ${targetUrl}`);
-            
-            if (driverFrame) {
-                driverFrame.src = targetUrl;
+        button.addEventListener("click", async () => {
+            // Use .dataset for cleaner access to data-* attributes
+            const targetUrl = button.dataset.url;
+            if (!targetUrl) return;
+
+            console.log(`Sending command to camera node: ${targetUrl}`);
+            try {
+                // Use fetch to send a "fire-and-forget" request.
+                // 'no-cors' is used for simple requests to endpoints that don't return CORS headers.
+                await fetch(targetUrl, { mode: 'no-cors' });
+            } catch (error) {
+                console.error(`Error sending command to ${targetUrl}:`, error);
             }
         });
     });
@@ -23,7 +28,7 @@ document.addEventListener("DOMContentLoaded", () => {
 /**
  * Initializes the WebRTC connection to the Creality K1C printer.
  */
-function initializeK1CStream() {
+async function initializeK1CStream() {
     const videoElement = document.getElementById('k1c-video');
     if (!videoElement) {
         console.error("K1C video element not found on the page.");
@@ -46,36 +51,44 @@ function initializeK1CStream() {
     pc.oniceconnectionstatechange = () => console.log("K1C WebRTC State: ", pc.iceConnectionState);
 
     // 3. Negotiate the connection via the printer's API
-    function sendOfferToCall(sdp) {
-        const xhttp = new XMLHttpRequest();
-        xhttp.onreadystatechange = function() {
-            if (this.readyState == 4 && this.status == 200) {
-                try {
-                    let res = JSON.parse(atob(this.responseText));
-                    console.log("Printer accepted offer:", res);
-                    if (res.type == 'answer') {
-                        pc.setRemoteDescription(new RTCSessionDescription(res));
-                    }
-                } catch (e) {
-                    console.error("Error parsing printer response:", e);
-                }
+    async function sendOfferToCall(sdp) {
+        const offerPayload = btoa(JSON.stringify({ 'type': 'offer', 'sdp': sdp }));
+        try {
+            const response = await fetch('http://10.0.6.166:8000/call/webrtc_local', {
+                method: 'POST',
+                headers: { 'Content-Type': 'plain/text' },
+                body: offerPayload,
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
             }
-        };
-        
-        xhttp.open('POST', 'http://10.0.6.166:8000/call/webrtc_local');
-        xhttp.setRequestHeader('Content-Type', 'plain/text');
-        xhttp.send(btoa(JSON.stringify({ 'type': 'offer', 'sdp': sdp })));
+
+            const responseText = await response.text();
+            const res = JSON.parse(atob(responseText));
+            console.log("Printer accepted offer:", res);
+
+            if (res.type === 'answer') {
+                await pc.setRemoteDescription(new RTCSessionDescription(res));
+            }
+        } catch (e) {
+            console.error("Error during WebRTC negotiation:", e);
+        }
     }
 
     pc.onicecandidate = event => {
         if (event.candidate === null) {
-            sendOfferToCall(pc.localDescription.sdp);
+            console.log("ICE gathering complete. Sending offer.");
+            sendOfferToCall(pc.localDescription.sdp).catch(e => console.error("Failed to send offer:", e));
         }
     };
 
     // 4. Kick off the WebRTC request process
-    pc.addTransceiver('video', { 'direction': 'sendrecv' });
-    pc.createOffer()
-      .then(offer => pc.setLocalDescription(offer))
-      .catch(err => console.error("Error creating WebRTC offer:", err));
+    try {
+        pc.addTransceiver('video', { 'direction': 'sendrecv' });
+        const offer = await pc.createOffer();
+        await pc.setLocalDescription(offer);
+    } catch (err) {
+        console.error("Error creating WebRTC offer:", err);
+    }
 }
