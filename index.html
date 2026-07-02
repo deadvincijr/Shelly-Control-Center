@@ -8,7 +8,7 @@
 </head>
 <body>
 
-    <h1>System Control Hub</h1>
+    <h1>Shelly Control Panel</h1>
 
     <div class="grid">
         <div class="card">
@@ -36,20 +36,37 @@
 
         <div class="card">
             <h3>System Status</h3>
-            <p>Framework Loop: <strong>Ragnarok</strong></p>
-            <p>Device Node: <strong>Shelly</strong></p>
+            <p>Network: <strong>Ragnarok</strong></p>
             <p>Web Host: <strong>Raspberry Pi</strong></p>
+            
             <hr>
             <p>Diagnostics: Active pipeline check initialized. HTML Functioning</p>
         </div>
 
-        <!-- Card for the K1C 3D Printer Video Feed -->
         <div class="card">
             <h3>Creality K1C Feed</h3>
             <p>Live WebRTC stream from the 3D printer.</p>
             <video id="k1c-video" class="video-feed" autoplay muted playsinline>
                 Your browser does not support the video tag.
             </video>
+        </div>
+
+        <div class="card">
+            <h3>3d printer status</h3>
+            <p id="Crealitycheck">3D Printer: <strong>Offline 🔴</strong></p>
+            <p>3d Printer IP Adress: <strong>10.0.6.166</strong></p>
+        </div>
+
+        <div class="card">
+            <h3>Dlink Camera status</h3>
+            <p id="Dlinkcheck">Dlink Camera: <strong>Offline 🔴</strong></p>
+            <p>Dlink Camera IP Adress: <strong>10.0.7.65</strong></p>
+        </div>
+
+        <div class="card"> 
+            <h3>Raspberry Pi Status</h3>
+            <p id="Raspberrycheck">Raspberry Pi: <strong>Online 🟢</strong></p>
+            <p>Raspberry Pi IP Adress: <strong>10.0.4.55</strong></p>
         </div>
     </div>
 

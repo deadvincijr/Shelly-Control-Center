@@ -5,16 +5,17 @@ document.addEventListener("DOMContentLoaded", () => {
     const buttons = document.querySelectorAll(".ptz-btn");
 
     buttons.forEach(button => {
-        button.addEventListener("click", async () => {
+        button.addEventListener("click", () => {
             // Use .dataset for cleaner access to data-* attributes
             const targetUrl = button.dataset.url;
             if (!targetUrl) return;
 
             console.log(`Sending command to camera node: ${targetUrl}`);
             try {
-                // Use fetch to send a "fire-and-forget" request.
-                // 'no-cors' is used for simple requests to endpoints that don't return CORS headers.
-                await fetch(targetUrl, { mode: 'no-cors' });
+                // Use the "image ping" trick to send an authenticated GET request
+                // without worrying about CORS issues that come with fetch().
+                const img = new Image();
+                img.src = targetUrl;
             } catch (error) {
                 console.error(`Error sending command to ${targetUrl}:`, error);
             }
@@ -92,3 +93,58 @@ async function initializeK1CStream() {
         console.error("Error creating WebRTC offer:", err);
     }
 }
+
+
+async function checkK1CStatus() {
+    const statusElement = document.getElementById('Crealitycheck');
+    if (!statusElement) return;
+
+    try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 4000); // 4-second timeout
+
+        const response = await fetch('http://10.0.6.166:8000/server/info', { signal: controller.signal });
+        clearTimeout(timeoutId);
+
+        if (response.ok) {
+            statusElement.innerHTML = `3D Printer: <strong>Online 🟢</strong>`;
+        } else {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+    } catch (error) {
+        console.error("Error checking K1C status:", error);
+        if (statusElement) statusElement.innerHTML = `3D Printer: <strong>Offline 🔴</strong>`;
+    }
+}
+
+checkK1CStatus();
+setInterval(checkK1CStatus, 5000); // Check every 5 seconds
+
+
+function checkDlinkStatus() {
+    const statusElement = document.getElementById('Dlinkcheck');
+    if (!statusElement) return;
+
+    const img = new Image();
+    let timeout = null;
+
+    const setStatus = (online) => {
+        // Clean up to prevent race conditions and memory leaks
+        clearTimeout(timeout);
+        img.onload = null;
+        img.onerror = null;
+        statusElement.innerHTML = `Dlink Camera: <strong>${online ? 'Online 🟢' : 'Offline 🔴'}</strong>`;
+    };
+
+    // For a continuous MJPEG stream, 'onload' may never fire. If we don't get an
+    // 'onerror' event after 4 seconds, we assume the stream is connecting.
+    timeout = setTimeout(() => setStatus(true), 4000);
+
+    img.onload = () => setStatus(true);
+    img.onerror = () => setStatus(false);
+
+    // Use a cache-busting parameter to ensure a fresh check every time.
+    img.src = `http://10.0.7.65:8081/?c=${Date.now()}`;
+}
+checkDlinkStatus();
+setInterval(checkDlinkStatus, 5000); // Check every 5 seconds
