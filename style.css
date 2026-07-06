@@ -100,24 +100,3 @@ hr {
     border-top: 1px solid #333;
     margin: 15px 0;
 }
-
-#fullscreen-btn {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    background-color: #1e1e1e;
-    color: #00bcd4;
-    text-align: center;
-    padding: 15px 0;
-    font-weight: bold;
-    font-size: 1.1em;
-    cursor: pointer;
-    z-index: 1000;
-    border-top: 2px solid #00bcd4;
-    transition: background-color 0.3s;
-}
-
-#fullscreen-btn:hover {
-    background-color: #004b55;
-}

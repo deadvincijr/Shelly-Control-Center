@@ -24,26 +24,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Initialize the K1C printer stream
     initializeK1CStream();
-
-    // Handles updating the fullscreen bar text when the state changes (e.g., via Esc key)
-    document.addEventListener('fullscreenchange', () => {
-        const fullscreenElement = document.getElementById('fullscreen-btn');
-        if (fullscreenElement) {
-            fullscreenElement.textContent = document.fullscreenElement ? "Exit Fullscreen" : "Go Fullscreen";
-        }
-    });
 });
-
-/**
- * Toggles fullscreen mode for the page. This is called by the new div's onclick attribute.
- */
-function toggleFullscreen() {
-    if (!document.fullscreenElement) {
-        document.documentElement.requestFullscreen().catch(err => console.error(`Error attempting to enable fullscreen: ${err.message}`));
-    } else if (document.exitFullscreen) {
-        document.exitFullscreen();
-    }
-}
 
 /**
  * Initializes the WebRTC connection to the Creality K1C printer.
