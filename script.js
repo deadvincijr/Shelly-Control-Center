@@ -24,7 +24,26 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Initialize the K1C printer stream
     initializeK1CStream();
+
+    // Handles updating the fullscreen bar text when the state changes (e.g., via Esc key)
+    document.addEventListener('fullscreenchange', () => {
+        const fullscreenElement = document.getElementById('fullscreen-btn');
+        if (fullscreenElement) {
+            fullscreenElement.textContent = document.fullscreenElement ? "Exit Fullscreen" : "Go Fullscreen";
+        }
+    });
 });
+
+/**
+ * Toggles fullscreen mode for the page. This is called by the new div's onclick attribute.
+ */
+function toggleFullscreen() {
+    if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(err => console.error(`Error attempting to enable fullscreen: ${err.message}`));
+    } else if (document.exitFullscreen) {
+        document.exitFullscreen();
+    }
+}
 
 /**
  * Initializes the WebRTC connection to the Creality K1C printer.
@@ -112,7 +131,12 @@ async function checkK1CStatus() {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
     } catch (error) {
-        console.error("Error checking K1C status:", error);
+        if (error.name === 'AbortError') {
+            // This is an expected timeout, not a critical error.
+            console.log("K1C status check timed out, setting status to Offline.");
+        } else {
+            console.error("Error checking K1C status:", error);
+        }
         if (statusElement) statusElement.innerHTML = `3D Printer: <strong>Offline 🔴</strong>`;
     }
 }
