@@ -151,5 +151,46 @@ function checkDlinkStatus() {
     // Use a cache-busting parameter to ensure a fresh check every time.
     img.src = `http://10.0.7.65:8081/?c=${Date.now()}`;
 }
-checkDlinkStatus();
-setInterval(checkDlinkStatus, 5000); // Check every 5 seconds
+// checkDlinkStatus(); // Uncomment to enable Dlink status check
+// setInterval(checkDlinkStatus, 5000); // Check every 5 seconds (ADD BACK WHEN FUNCTIONING PROPERLY)
+
+// Global variable for Jellyfin port, accessible from console
+let jellyfinPort = 8096; // Default Jellyfin port
+
+/**
+ * Sets the Jellyfin status display on the page.
+ * This function can be called from the browser console.
+ * Example: setJellyfinStatus('on');
+ * Example: setJellyfinStatus('off');
+ * @param {string} status - 'on' or 'off' to indicate Jellyfin's status.
+ */
+function setJellyfinStatus(status) {
+    const statusElement = document.getElementById('Jellyfincheck');
+    if (!statusElement) {
+        console.warn("Jellyfin status element not found.");
+        return;
+    }
+
+    const isOnline = status.toLowerCase() === 'on';
+    statusElement.innerHTML = `Jellyfin: <strong>${isOnline ? 'Online 🟢' : 'Offline 🔴'}</strong>`;
+    console.log(`Jellyfin status set to: ${isOnline ? 'Online' : 'Offline'}`);
+}
+
+/**
+ * Sets the port number for the Jellyfin server.
+ * This function can be called from the browser console.
+ * Example: setJellyfinPort(8096);
+ * @param {number} port - The new port number for Jellyfin.
+ */
+function setJellyfinPort(port) {
+    const portElement = document.getElementById('Jellyfinport');
+    if (typeof port === 'number' && port > 0 && port < 65536) {
+        jellyfinPort = port;
+        console.log(`Jellyfin port set to: ${jellyfinPort}`);
+        if (portElement) {
+            portElement.innerHTML = `Jellyfin Port: <strong>${jellyfinPort}</strong>`;
+        }
+    } else {
+        console.error("Invalid port number. Please provide a number between 1 and 65535.");
+    }
+}

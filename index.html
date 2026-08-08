@@ -38,6 +38,7 @@
             <h3>System Status</h3>
             <p>Network: <strong>Ragnarok</strong></p>
             <p>Web Host: <strong>Raspberry Pi</strong></p>
+            <p>External Network Host: <strong>Tailscale</strong></p>
             
             <hr>
             <p>Diagnostics: Active pipeline check initialized. HTML Functioning</p>
@@ -59,7 +60,7 @@
 
         <div class="card">
             <h3>Dlink Camera status</h3>
-            <p id="Dlinkcheck">Dlink Camera: <strong>Offline 🔴</strong></p>
+            <p id="Dlinkcheck">Dlink Camera: <strong>Local Check Feature Pending ⏳ Will be available soon.</strong></p>
             <p>Dlink Camera IP Adress: <strong>10.0.7.65</strong></p>
         </div>
 
@@ -67,6 +68,25 @@
             <h3>Raspberry Pi Status</h3>
             <p id="Raspberrycheck">Raspberry Pi: <strong>Online 🟢</strong></p>
             <p>Raspberry Pi IP Adress: <strong>10.0.4.55</strong></p>
+            <p>Tailscale IP Adress: <strong>100.115.114.71</strong></p>
+        </div>
+        <div class="card">
+            <h3>Jellyfin Status</h3>
+            <p id="Jellyfincheck">Jellyfin: <strong>Operational 🟢</strong></p>
+            <p id="Jellyfinport">Jellyfin Port: <strong>8008</strong></p>
+            <div id="jellyfinbutton" onclick="window.open('http://100.115.114.71:8008', '_blank')">Open Jellyfin</div>
+        </div>
+        <div class="card">
+            <h3>Immich Status</h3>
+            <p id="Immichcheck">Immich: <strong>Operational 🟢</strong></p>
+            <p id="Immichport">Immich Port: <strong>2283</strong></p>
+            <div id="immichbutton" onclick="window.open('http://100.115.114.71:2283', '_blank')">Open Immich</div>
+        </div>
+        <div class="card">
+            <h3>Audio Bookshelf Status</h3>
+            <p id="AudioBookshelfcheck">Audio Bookshelf: <strong>Operational 🟢</strong></p>
+            <p id="AudioBookshelfport">Audio Bookshelf Port: <strong>13378</strong></p>
+            <div id="audiobookshelfbutton" onclick="window.open('http://100.115.114.71:13378', '_blank')">Open Audio Bookshelf</div>
         </div>
     </div>
 
