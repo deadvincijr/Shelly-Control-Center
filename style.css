@@ -158,3 +158,22 @@ hr {
     color: #1e1e1e;
     border-color: #00bcd4; /* Optional: Add a border color on hover */
 }
+
+#nextcloudbutton {
+    background-color: #1e1e1e;
+    border: 1px solid #00bcd4;
+    color: #00bcd4;
+    padding: 10px 20px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: 0.2s;
+    display: inline-block;
+    margin-top: 10px;
+}
+
+#nextcloudbutton:hover {
+    background-color: #00bcd4;
+    color: #1e1e1e;
+    border-color: #00bcd4;
+}
