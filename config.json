@@ -1,0 +1,76 @@
+{
+  "theme": "modern",
+  "cardVisibility": {
+    "card-live-camera": true,
+    "card-system-status": true,
+    "card-k1c-video-feed": true,
+    "card-k1c": true,
+    "card-dlink": true,
+    "card-raspberry": true,
+    "card-jellyfin": true,
+    "card-immich": true,
+    "card-audiobookshelf": true,
+    "card-nextcloud": true,
+    "card-pihole": true,
+    "card-spyview": true
+  },
+  "devices": {
+    "raspberryPi": {
+      "name": "Raspberry Pi",
+      "status": "Online",
+      "ip": "10.0.4.55",
+      "tailscaleIp": "100.121.5.41"
+    },
+    "k1c": {
+      "name": "Creality K1C 3D Printer",
+      "status": "Offline",
+      "ip": "10.0.6.166",
+      "port": "8000"
+    },
+    "dlink": {
+      "name": "D-Link Camera",
+      "status": "Online",
+      "ip": "10.0.7.65",
+      "port": "8081",
+      "ptzIp": "10.0.4.55"
+    }
+  },
+  "services": {
+    "jellyfin": {
+      "name": "Jellyfin",
+      "status": "Operational",
+      "ip": "100.121.5.41",
+      "port": "8096"
+    },
+    "immich": {
+      "name": "Immich",
+      "status": "Operational",
+      "ip": "100.121.5.41",
+      "port": "2283"
+    },
+    "audiobookshelf": {
+      "name": "Audio Bookshelf",
+      "status": "Operational",
+      "ip": "100.121.5.41",
+      "port": "13378"
+    },
+    "nextcloud": {
+      "name": "Nextcloud",
+      "status": "Operational",
+      "ip": "100.121.5.41",
+      "port": "8080"
+    },
+    "pihole": {
+      "name": "Pi-hole",
+      "status": "Operational",
+      "ip": "100.121.5.41",
+      "port": "8088"
+    },
+    "spyview": {
+      "name": "Spy View",
+      "status": "Operational",
+      "ip": "100.121.5.41",
+      "port": "4173"
+    }
+  }
+}

@@ -4,103 +4,191 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pi Command Center</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="./style.css">
 </head>
 <body>
 
-    <h1>Shelly Control Panel</h1>
+    <header class="header-container">
+        <div class="header-brand">
+            <h1>Shelly Control Panel</h1>
+            <div class="system-badge"><span class="pulse-dot"></span> SYSTEM ONLINE</div>
+        </div>
+        <div class="header-controls">
+            <button id="theme-toggle-btn" class="btn theme-btn" title="Toggle between Modern and Classic themes">🎨 Classic Mode</button>
+            <button id="admin-settings-btn" class="btn admin-btn" title="Open Admin Settings">⚙️ Admin Settings</button>
+        </div>
+    </header>
 
-    <div class="grid">
-        <div class="card">
+    <div class="grid" id="dashboard-grid">
+        <div class="card" id="card-live-camera">
             <h3>Live Camera Feed</h3>
-            <img class="video-feed" src="http://10.0.7.65:8081" alt="Live Stream">
+            <img id="dlink-feed" class="video-feed" src="http://10.0.7.65:8081" alt="Live Stream">
             
             <div class="ptz-controller">
                 <div class="row">
-                    <button data-url="http://10.0.4.55/cgi/ptdc.cgi?command=set_relative_pos&posX=0&posY=10" class="btn ptz-btn">▲ Up</button>
+                    <button data-ptz-dir="up" data-url="http://10.0.4.55/cgi/ptdc.cgi?command=set_relative_pos&posX=0&posY=10" class="btn ptz-btn">▲ Up</button>
                 </div>
                 <div class="row">
-                    <button data-url="http://10.0.4.55/cgi/ptdc.cgi?command=set_relative_pos&posX=-10&posY=0" class="btn ptz-btn">◀ Left</button>
-                    <button data-url="http://10.0.4.55/cgi/ptdc.cgi?command=go_home" class="btn home-btn ptz-btn">⌂ Home</button>
-                    <button data-url="http://10.0.4.55/cgi/ptdc.cgi?command=set_relative_pos&posX=10&posY=0" class="btn ptz-btn">Right ▶</button>
+                    <button data-ptz-dir="left" data-url="http://10.0.4.55/cgi/ptdc.cgi?command=set_relative_pos&posX=-10&posY=0" class="btn ptz-btn">◀ Left</button>
+                    <button data-ptz-dir="home" data-url="http://10.0.4.55/cgi/ptdc.cgi?command=go_home" class="btn home-btn ptz-btn">⌂ Home</button>
+                    <button data-ptz-dir="right" data-url="http://10.0.4.55/cgi/ptdc.cgi?command=set_relative_pos&posX=10&posY=0" class="btn ptz-btn">Right ▶</button>
                 </div>
                 <div class="row">
-                    <button data-url="http://10.0.4.55/cgi/ptdc.cgi?command=set_relative_pos&posX=0&posY=-10" class="btn ptz-btn">▼ Down</button>
+                    <button data-ptz-dir="down" data-url="http://10.0.4.55/cgi/ptdc.cgi?command=set_relative_pos&posX=0&posY=-10" class="btn ptz-btn">▼ Down</button>
                 </div>
                 
                 <div class="row" style="margin-top: 10px;">
-                    <a href="http://10.0.4.55" target="_blank" class="btn unlock-btn">🔓 Unlock Motors</a>
+                    <a id="unlock-motors-link" href="http://10.0.4.55" target="_blank" class="btn unlock-btn">🔓 Unlock Motors</a>
                 </div>
             </div>
         </div>
 
-        <div class="card">
+        <div class="card" id="card-system-status">
             <h3>System Status</h3>
             <p>Network: <strong>Ragnarok</strong></p>
             <p>Web Host: <strong>Raspberry Pi</strong></p>
             <p>External Network Host: <strong>Tailscale</strong></p>
             
             <hr>
-            <p>Diagnostics: Active pipeline check initialized. HTML Functioning</p>
+            <p class="diagnostics-text">Diagnostics: Active pipeline check initialized. HTML Functioning</p>
         </div>
 
-        <div class="card">
+        <div class="card" id="card-k1c-video-feed">
             <h3>Creality K1C Feed</h3>
-            <p>Live WebRTC stream from the 3D printer.</p>
+            <p class="feed-desc">Live WebRTC stream from the 3D printer.</p>
             <video id="k1c-video" class="video-feed" autoplay muted playsinline>
                 Your browser does not support the video tag.
             </video>
         </div>
 
-        <div class="card">
+        <div class="card" id="card-k1c">
             <h3>3d printer status</h3>
             <p id="Crealitycheck">3D Printer: <strong>Offline 🔴</strong></p>
-            <p>3d Printer IP Adress: <strong>10.0.6.166</strong></p>
+            <p>3d Printer IP Adress: <strong id="Crealityip">10.0.6.166</strong></p>
         </div>
 
-        <div class="card">
+        <div class="card" id="card-dlink">
             <h3>Dlink Camera status</h3>
-            <p id="Dlinkcheck">Dlink Camera: <strong>Local Check Feature Pending ⏳ Will be available soon.</strong></p>
-            <p>Dlink Camera IP Adress: <strong>10.0.7.65</strong></p>
+            <p id="Dlinkcheck">Dlink Camera: <strong>Online 🟢</strong></p>
+            <p>Dlink Camera IP Adress: <strong id="Dlinkip">10.0.7.65</strong></p>
         </div>
 
-        <div class="card"> 
+        <div class="card" id="card-raspberry"> 
             <h3>Raspberry Pi Status</h3>
             <p id="Raspberrycheck">Raspberry Pi: <strong>Online 🟢</strong></p>
-            <p>Raspberry Pi IP Adress: <strong>10.0.4.55</strong></p>
-            <p>Tailscale IP Adress: <strong>100.121.5.41</strong></p>
+            <p>Raspberry Pi IP Adress: <strong id="Raspberryip">10.0.4.55</strong></p>
+            <p>Tailscale IP Adress: <strong id="Raspberrytailscale">100.121.5.41</strong></p>
         </div>
-        <div class="card">
+
+        <div class="card" id="card-jellyfin">
             <h3>Jellyfin Status</h3>
             <p id="Jellyfincheck">Jellyfin: <strong>Operational 🟢</strong></p>
             <p id="Jellyfinport">Jellyfin Port: <strong>8096</strong></p>
-            <div id="jellyfinbutton" onclick="window.open('http://100.121.5.41:8096', '_blank')">Open Jellyfin</div>
+            <div id="jellyfinbutton" class="service-action-btn">Open Jellyfin</div>
         </div>
-        <div class="card">
+
+        <div class="card" id="card-immich">
             <h3>Immich Status</h3>
             <p id="Immichcheck">Immich: <strong>Operational 🟢</strong></p>
             <p id="Immichport">Immich Port: <strong>2283</strong></p>
-            <div id="immichbutton" onclick="window.open('http://100.121.5.41:2283', '_blank')">Open Immich</div>
+            <div id="immichbutton" class="service-action-btn">Open Immich</div>
         </div>
-        <div class="card">
+
+        <div class="card" id="card-audiobookshelf">
             <h3>Audio Bookshelf Status</h3>
             <p id="AudioBookshelfcheck">Audio Bookshelf: <strong>Operational 🟢</strong></p>
             <p id="AudioBookshelfport">Audio Bookshelf Port: <strong>13378</strong></p>
-            <div id="audiobookshelfbutton" onclick="window.open('http://100.121.5.41:13378', '_blank')">Open Audio Bookshelf</div>
+            <div id="audiobookshelfbutton" class="service-action-btn">Open Audio Bookshelf</div>
         </div>
-        <div class="card">
-            <h3>Nexcloud Status</h3>
+
+        <div class="card" id="card-nextcloud">
+            <h3>Nextcloud Status</h3>
             <p id="Nextcloudcheck">Nextcloud: <strong>Operational 🟢</strong></p>
             <p id="Nextcloudport">Nextcloud Port: <strong>8080</strong></p>
-            <div id="nextcloudbutton" onclick="window.open('http://100.121.5.41:8080', '_blank')">Open Nexcloud</div>
+            <div id="nextcloudbutton" class="service-action-btn">Open Nextcloud</div>
         </div>
-        <div class="card">
+
+        <div class="card" id="card-pihole">
             <h3>Pi-hole Status</h3>
             <p id="Piholecheck">Pi-hole: <strong>Operational 🟢</strong></p>
             <p id="Piholeport">Pi-hole Port: <strong>8088</strong></p>
-            <div id="piholebutton" onclick="window.open('http://100.121.5.41:8088', '_blank')">Open Pi-hole</div>
+            <div id="piholebutton" class="service-action-btn">Open Pi-hole</div>
+        </div>
+
+        <div class="card" id="card-spyview">
+            <h3>Spy View Status</h3>
+            <p id="Spyviewcheck">Spy View: <strong>Operational 🟢</strong></p>
+            <p id="Spyviewport">Spy View Port: <strong>4173</strong></p>
+            <div id="spyviewbutton" class="service-action-btn">Open Spy View</div>
         </div>
     </div>
+
+    <!-- Admin Settings Modal -->
+    <div id="admin-modal" class="modal-overlay hidden" aria-hidden="true" role="dialog" aria-labelledby="modal-title">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modal-title">⚙️ Admin Control & Settings</h2>
+                <button id="modal-close-btn" class="close-btn" title="Close">&times;</button>
+            </div>
+            
+            <div class="modal-body">
+                <p class="modal-subtitle">Configure operational statuses, IP addresses, ports, box visibility, and appearance. All preferences persist across page reloads.</p>
+
+                <!-- Interface Theme Setting -->
+                <div class="settings-theme-box">
+                    <div class="theme-info">
+                        <span class="theme-title">🎨 Classic Interface Mode</span>
+                        <span class="theme-desc">Revert to the original classic look and feel</span>
+                    </div>
+                    <div class="switch-container">
+                        <span id="theme-mode-label" class="switch-label status-theme">Modern ✨</span>
+                        <label class="switch">
+                            <input type="checkbox" id="classic-mode-toggle">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Box / Card Visibility Section -->
+                <h4 class="settings-section-title">📋 Dashboard Box Visibility</h4>
+                <p class="section-subtext">Toggle boxes on or off to choose what appears on your dashboard:</p>
+                <div id="visibility-settings-container" class="visibility-grid">
+                    <!-- Populated dynamically -->
+                </div>
+                
+                <h4 class="settings-section-title" style="margin-top: 24px;">Application Services</h4>
+                <div id="services-settings-container" class="settings-grid">
+                    <!-- Populated dynamically -->
+                </div>
+
+                <h4 class="settings-section-title" style="margin-top: 24px;">Hardware & Devices</h4>
+                <div id="devices-settings-container" class="settings-grid">
+                    <!-- Populated dynamically -->
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <div class="footer-actions-left">
+                    <button id="export-config-btn" class="btn btn-secondary-custom" type="button" title="Download config.json">💾 Export File</button>
+                    <label class="btn btn-secondary-custom file-upload-label" title="Upload config.json">
+                        📂 Import File
+                        <input type="file" id="import-config-input" accept=".json">
+                    </label>
+                    <button id="reset-defaults-btn" class="btn btn-danger-custom" type="button" title="Reset to defaults">↺ Defaults</button>
+                </div>
+                <div class="footer-actions-right">
+                    <button id="cancel-settings-btn" class="btn btn-secondary-custom" type="button">Cancel</button>
+                    <button id="save-settings-btn" class="btn btn-primary-custom" type="button">✓ Save Changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification Toast -->
+    <div id="toast" class="toast hidden">Settings saved successfully!</div>
 
     <script src="./script.js"></script>
 
