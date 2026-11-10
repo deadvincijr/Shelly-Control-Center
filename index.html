@@ -23,6 +23,18 @@
     </header>
 
     <div class="grid" id="dashboard-grid">
+
+        <!-- NEW: RC Rover Live Feed & Controller Launcher Card -->
+        <div class="card" id="card-rc-rover">
+            <h3>RC Rover Live Feed</h3>
+            <p class="feed-desc">OV5647 720p30 MJPEG Stream | L298N GPIO (17/27 &amp; 5/6)</p>
+            <img id="rover-feed" class="video-feed" src="/video_feed" alt="RC Rover Live Stream">
+            <p id="Rovercheck" style="margin-top: 8px;">Rover Status: <strong>Ready 🟢</strong></p>
+            <a href="/rc" id="rcroverbutton" class="service-action-btn" style="display: block; text-align: center; text-decoration: none; margin-top: 10px;">
+                🎮 Launch Fullscreen RC Controller
+            </a>
+        </div>
+
         <div class="card" id="card-live-camera">
             <h3>Live Camera Feed</h3>
             <img id="dlink-feed" class="video-feed" src="http://10.0.7.65:8081" alt="Live Stream">
@@ -85,42 +97,42 @@
 
         <div class="card" id="card-jellyfin">
             <h3>Jellyfin Status</h3>
-            <p id="Jellyfincheck">Jellyfin: <strong>Operational 🟢</strong></p>
+            <p id="Jellyfincheck">Jellyfin: <strong>Offline 🔴</strong></p>
             <p id="Jellyfinport">Jellyfin Port: <strong>8096</strong></p>
             <div id="jellyfinbutton" class="service-action-btn">Open Jellyfin</div>
         </div>
 
         <div class="card" id="card-immich">
             <h3>Immich Status</h3>
-            <p id="Immichcheck">Immich: <strong>Operational 🟢</strong></p>
+            <p id="Immichcheck">Immich: <strong>Offline 🔴</strong></p>
             <p id="Immichport">Immich Port: <strong>2283</strong></p>
             <div id="immichbutton" class="service-action-btn">Open Immich</div>
         </div>
 
         <div class="card" id="card-audiobookshelf">
             <h3>Audio Bookshelf Status</h3>
-            <p id="AudioBookshelfcheck">Audio Bookshelf: <strong>Operational 🟢</strong></p>
+            <p id="AudioBookshelfcheck">Audio Bookshelf: <strong>Offline 🔴</strong></p>
             <p id="AudioBookshelfport">Audio Bookshelf Port: <strong>13378</strong></p>
             <div id="audiobookshelfbutton" class="service-action-btn">Open Audio Bookshelf</div>
         </div>
 
         <div class="card" id="card-nextcloud">
             <h3>Nextcloud Status</h3>
-            <p id="Nextcloudcheck">Nextcloud: <strong>Operational 🟢</strong></p>
+            <p id="Nextcloudcheck">Nextcloud: <strong>Offline 🔴</strong></p>
             <p id="Nextcloudport">Nextcloud Port: <strong>8080</strong></p>
             <div id="nextcloudbutton" class="service-action-btn">Open Nextcloud</div>
         </div>
 
         <div class="card" id="card-pihole">
             <h3>Pi-hole Status</h3>
-            <p id="Piholecheck">Pi-hole: <strong>Operational 🟢</strong></p>
+            <p id="Piholecheck">Pi-hole: <strong>Offline 🔴</strong></p>
             <p id="Piholeport">Pi-hole Port: <strong>8088</strong></p>
             <div id="piholebutton" class="service-action-btn">Open Pi-hole</div>
         </div>
 
         <div class="card" id="card-spyview">
             <h3>Spy View Status</h3>
-            <p id="Spyviewcheck">Spy View: <strong>Operational 🟢</strong></p>
+            <p id="Spyviewcheck">Spy View: <strong>Offline 🔴</strong></p>
             <p id="Spyviewport">Spy View Port: <strong>4173</strong></p>
             <div id="spyviewbutton" class="service-action-btn">Open Spy View</div>
         </div>
