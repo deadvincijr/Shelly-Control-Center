@@ -29,3 +29,4 @@ if systemctl is-active --quiet shelly-rover.service 2>/dev/null; then
 fi
 
 echo "=== Deploy complete! ==="
+
