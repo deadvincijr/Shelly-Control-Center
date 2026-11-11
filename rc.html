@@ -142,11 +142,7 @@
 <body>
 
     <div class="camera-container">
-<<<<<<< HEAD
         <img id="rc-camera-stream" src="/video_feed" alt="Live RC Camera Stream">
-=======
-        <img src="/video_feed" alt="Live RC Camera Stream">
->>>>>>> 07ebbf490fbd608ff356776252f0f540e46845ee
     </div>
 
     <div class="hud-header">
@@ -203,10 +199,7 @@
             ws.onclose = () => {
                 wsDot.classList.remove('online');
                 wsStatus.textContent = 'Reconnecting...';
-<<<<<<< HEAD
                 currentCmd = 'stop';
-=======
->>>>>>> 07ebbf490fbd608ff356776252f0f540e46845ee
                 setTimeout(connectWS, 1000);
             };
         }
@@ -256,7 +249,6 @@
 
         document.querySelectorAll('.rc-btn').forEach(btn => {
             const cmd = btn.dataset.cmd;
-<<<<<<< HEAD
             let isPointerActive = false;
 
             const start = (e) => {
@@ -270,10 +262,6 @@
                 isPointerActive = false;
                 if (cmd !== 'stop') sendCmd('stop');
             };
-=======
-            const start = (e) => { e.preventDefault(); sendCmd(cmd); };
-            const end = (e) => { e.preventDefault(); if (cmd !== 'stop') sendCmd('stop'); };
->>>>>>> 07ebbf490fbd608ff356776252f0f540e46845ee
 
             btn.addEventListener('mousedown', start);
             btn.addEventListener('mouseup', end);
@@ -288,20 +276,13 @@
             sendCmd('stop');
         });
 
-<<<<<<< HEAD
         window.addEventListener('beforeunload', () => {
             sendCmd('stop');
             const streamImg = document.getElementById('rc-camera-stream');
             if (streamImg) streamImg.src = '';
         });
 
-=======
->>>>>>> 07ebbf490fbd608ff356776252f0f540e46845ee
         connectWS();
     </script>
 </body>
 </html>
-<<<<<<< HEAD
-
-=======
->>>>>>> 07ebbf490fbd608ff356776252f0f540e46845ee

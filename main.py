@@ -1,5 +1,4 @@
 import asyncio
-<<<<<<< HEAD
 from contextlib import asynccontextmanager
 from pathlib import Path
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
@@ -37,26 +36,6 @@ except Exception as exc:
     in3 = _DummyPin()
     in4 = _DummyPin()
     GPIO_AVAILABLE = False
-=======
-from pathlib import Path
-from fastapi import FastAPI, WebSocket, WebSocketDisconnect
-from fastapi.responses import StreamingResponse, FileResponse
-from gpiozero import DigitalOutputDevice
-
-app = FastAPI(title="Shelly Control Panel & RC Rover")
-BASE_DIR = Path(__file__).resolve().parent
-
-# =====================================================================
-# 1. GPIOZERO MOTOR CONTROL (Pi 5 RP1 Hardware Mapping)
-# =====================================================================
-# Left Motor: IN1 -> GPIO 17, IN2 -> GPIO 27
-in1 = DigitalOutputDevice(17, initial_value=False)
-in2 = DigitalOutputDevice(27, initial_value=False)
-
-# Right Motor: IN3 -> GPIO 5, IN4 -> GPIO 6
-in3 = DigitalOutputDevice(5, initial_value=False)
-in4 = DigitalOutputDevice(6, initial_value=False)
->>>>>>> 07ebbf490fbd608ff356776252f0f540e46845ee
 
 def leftmotorforward():
     in1.on()
@@ -117,7 +96,6 @@ COMMANDS = {
 }
 
 # =====================================================================
-<<<<<<< HEAD
 # 2. LIVE MJPEG STREAMER (Shared + Auto-Sleep When Idle to Save CPU)
 # =====================================================================
 class CameraStream:
@@ -179,36 +157,6 @@ class CameraStream:
         try:
             while proc and proc.returncode is None and proc.stdout:
                 chunk = await proc.stdout.read(16384)
-=======
-# 2. LIVE MJPEG STREAMER (Shared Between Main Panel & RC Page)
-# =====================================================================
-class CameraStream:
-    def __init__(self):
-        self.process = None
-        self.clients = set()
-        self.lock = asyncio.Lock()
-
-    async def start_stream(self):
-        async with self.lock:
-            if self.process is not None and self.process.returncode is None:
-                return
-            self.process = await asyncio.create_subprocess_exec(
-                "rpicam-vid",
-                "-t", "0", "-n", "--inline",
-                "--width", "1280", "--height", "720",
-                "--framerate", "30", "--codec", "mjpeg",
-                "--flush", "-o", "-",
-                stdout=asyncio.subprocess.PIPE,
-                stderr=asyncio.subprocess.DEVNULL
-            )
-            asyncio.create_task(self._read_frames())
-
-    async def _read_frames(self):
-        buffer = bytearray()
-        try:
-            while self.process and self.process.returncode is None:
-                chunk = await self.process.stdout.read(16384)
->>>>>>> 07ebbf490fbd608ff356776252f0f540e46845ee
                 if not chunk:
                     break
                 buffer.extend(chunk)
@@ -225,11 +173,7 @@ class CameraStream:
                     frame = bytes(buffer[start : end + 2])
                     del buffer[: end + 2]
                     dead = set()
-<<<<<<< HEAD
                     for q in list(self.clients):
-=======
-                    for q in self.clients:
->>>>>>> 07ebbf490fbd608ff356776252f0f540e46845ee
                         try:
                             if q.full():
                                 q.get_nowait()
@@ -255,7 +199,6 @@ class CameraStream:
                 )
         finally:
             self.clients.discard(q)
-<<<<<<< HEAD
             if not self.clients:
                 if self._idle_task and not self._idle_task.done():
                     self._idle_task.cancel()
@@ -276,11 +219,6 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(title="Shelly Control Panel & RC Rover", lifespan=lifespan)
 
-=======
-
-camera = CameraStream()
-
->>>>>>> 07ebbf490fbd608ff356776252f0f540e46845ee
 # =====================================================================
 # 3. ROUTES & WEBSOCKETS
 # =====================================================================
@@ -300,13 +238,10 @@ async def serve_css():
 async def serve_js():
     return FileResponse(BASE_DIR / "script.js")
 
-<<<<<<< HEAD
 @app.get("/config.json")
 async def serve_config():
     return FileResponse(BASE_DIR / "config.json")
 
-=======
->>>>>>> 07ebbf490fbd608ff356776252f0f540e46845ee
 @app.get("/video_feed")
 async def video_feed():
     return StreamingResponse(
@@ -328,7 +263,3 @@ async def websocket_control(websocket: WebSocket):
         stop()
     except Exception:
         stop()
-<<<<<<< HEAD
-
-=======
->>>>>>> 07ebbf490fbd608ff356776252f0f540e46845ee
