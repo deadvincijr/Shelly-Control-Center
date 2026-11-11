@@ -3,6 +3,7 @@ console.log("Telemetry backend checking pipelines for Creality K1C diagnostics..
 
 // Card metadata definitions for visibility management
 const CARD_METADATA = [
+    { id: "card-rc-rover", label: "RC Rover Live Feed", icon: "🏎️" },
     { id: "card-live-camera", label: "Live Camera Feed", icon: "📹" },
     { id: "card-system-status", label: "System Status", icon: "ℹ️" },
     { id: "card-k1c-video-feed", label: "Creality K1C Feed", icon: "🎥" },
@@ -21,6 +22,7 @@ const CARD_METADATA = [
 const DEFAULT_CONFIG = {
     theme: "modern",
     cardVisibility: {
+        "card-rc-rover": true,
         "card-live-camera": true,
         "card-system-status": true,
         "card-k1c-video-feed": true,
@@ -35,6 +37,10 @@ const DEFAULT_CONFIG = {
         "card-spyview": true
     },
     devices: {
+        rcRover: {
+            name: "RC Rover",
+            status: "Ready"
+        },
         raspberryPi: {
             name: "Raspberry Pi",
             status: "Online",
@@ -58,44 +64,44 @@ const DEFAULT_CONFIG = {
     services: {
         jellyfin: {
             name: "Jellyfin",
-            status: "Operational",
+            status: "Offline",
             ip: "100.121.5.41",
             port: "8096"
         },
         immich: {
             name: "Immich",
-            status: "Operational",
+            status: "Offline",
             ip: "100.121.5.41",
             port: "2283"
         },
         audiobookshelf: {
             name: "Audio Bookshelf",
-            status: "Operational",
+            status: "Offline",
             ip: "100.121.5.41",
             port: "13378"
         },
         nextcloud: {
             name: "Nextcloud",
-            status: "Operational",
+            status: "Offline",
             ip: "100.121.5.41",
             port: "8080"
         },
         pihole: {
             name: "Pi-hole",
-            status: "Operational",
+            status: "Offline",
             ip: "100.121.5.41",
             port: "8088"
         },
         spyview: {
             name: "Spy View",
-            status: "Operational",
+            status: "Offline",
             ip: "100.121.5.41",
             port: "4173"
         }
     }
 };
 
-const STORAGE_KEY = 'shelly_control_config';
+const STORAGE_KEY = 'shelly_control_config_v2';
 let currentConfig = loadInitialConfig();
 
 /**
@@ -206,6 +212,15 @@ function applyCardVisibility(vis) {
                 el.classList.remove('card-hidden');
             } else {
                 el.classList.add('card-hidden');
+            }
+            if (card.id === 'card-rc-rover') {
+                const roverImg = document.getElementById('rover-feed');
+                if (roverImg) {
+                    const targetSrc = isVisible ? '/video_feed' : '';
+                    if (roverImg.getAttribute('src') !== targetSrc) {
+                        roverImg.setAttribute('src', targetSrc);
+                    }
+                }
             }
         }
     });
@@ -825,8 +840,10 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
-    // Initialize the K1C printer stream
-    initializeK1CStream();
+    // Initialize the K1C printer stream only if K1C is marked Online
+    if ((currentConfig.devices?.k1c?.status || '').toLowerCase() === 'online') {
+        initializeK1CStream();
+    }
 });
 
 /**
@@ -898,6 +915,14 @@ async function initializeK1CStream() {
 async function checkK1CStatus() {
     const statusElement = document.getElementById('Crealitycheck');
     if (!statusElement) return;
+
+    // Skip network polling when K1C is manually configured as Offline to save resources
+    const manualStatus = currentConfig.devices?.k1c?.status || 'Offline';
+    if (manualStatus.toLowerCase() !== 'online') {
+        window._k1cTelemetryActive = false;
+        statusElement.innerHTML = `3D Printer: <strong>Offline 🔴</strong>`;
+        return;
+    }
 
     const k1cIp = currentConfig.devices?.k1c?.ip || '10.0.6.166';
     const k1cPort = currentConfig.devices?.k1c?.port || '8000';
