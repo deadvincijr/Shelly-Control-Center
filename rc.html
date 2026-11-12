@@ -216,7 +216,6 @@
         }
 
         function sendCmd(cmd) {
-            if (cmd === currentCmd && cmd !== 'stop') return;
             currentCmd = cmd;
             if (ws && ws.readyState === WebSocket.OPEN) {
                 ws.send(cmd);
@@ -238,6 +237,7 @@
             const cmd = keyMap[e.code];
             if (!cmd) return;
             e.preventDefault();
+            if (e.repeat) return;
             if (cmd === 'stop') {
                 heldKeys.clear();
                 sendCmd('stop');

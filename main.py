@@ -1,4 +1,6 @@
 import asyncio
+import shutil
+import subprocess
 from contextlib import asynccontextmanager
 from pathlib import Path
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
@@ -7,79 +9,93 @@ from fastapi.responses import StreamingResponse, FileResponse
 BASE_DIR = Path(__file__).resolve().parent
 
 # =====================================================================
-# 1. GPIOZERO MOTOR CONTROL (Pi 5 RP1 Hardware Mapping with Safe Fallback)
+# 1. MOTOR CONTROL (Direct pinctrl op dh/dl matching hardware pseudocode)
 # =====================================================================
-class _DummyPin:
-    def on(self):
-        pass
+HAS_PINCTRL = shutil.which("pinctrl") is not None
 
-    def off(self):
-        pass
 
-    def close(self):
-        pass
+def _set_pin(pin: int, level: str):
+    """
+    Sets a GPIO pin to output mode ('op') and drives it HIGH ('dh') or LOW ('dl')
+    using Raspberry Pi's native `pinctrl` utility.
+    """
+    if HAS_PINCTRL:
+        subprocess.run(
+            ["pinctrl", "set", str(pin), "op", level],
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+            check=False,
+        )
+    else:
+        print(f"[MOCK PINCTRL] pinctrl set {pin} op {level}")
 
-try:
-    from gpiozero import DigitalOutputDevice
-    # Left Motor: IN1 -> GPIO 17, IN2 -> GPIO 27
-    in1 = DigitalOutputDevice(17, initial_value=False)
-    in2 = DigitalOutputDevice(27, initial_value=False)
 
-    # Right Motor: IN3 -> GPIO 5, IN4 -> GPIO 6
-    in3 = DigitalOutputDevice(5, initial_value=False)
-    in4 = DigitalOutputDevice(6, initial_value=False)
-    GPIO_AVAILABLE = True
-except Exception as exc:
-    print(f"[WARN] GPIO initialization skipped or unavailable ({exc}). Using mock pins.")
-    in1 = _DummyPin()
-    in2 = _DummyPin()
-    in3 = _DummyPin()
-    in4 = _DummyPin()
-    GPIO_AVAILABLE = False
-
+# Left Motor (GPIO 17 & 27)
 def leftmotorforward():
-    in1.on()
-    in2.off()
+    _set_pin(17, "dh")  # HIGH
+    _set_pin(27, "dl")  # LOW
+
 
 def leftmotorback():
-    in1.off()
-    in2.on()
+    _set_pin(17, "dl")  # LOW
+    _set_pin(27, "dh")  # HIGH
+
 
 def leftmotoroff():
-    in1.off()
-    in2.off()
+    _set_pin(17, "dl")  # LOW
+    _set_pin(27, "dl")  # LOW
 
+
+leftmotorstop = leftmotoroff
+
+
+# Right Motor (GPIO 5 & 6)
 def rightmotorforward():
-    in3.on()
-    in4.off()
+    _set_pin(5, "dh")   # HIGH
+    _set_pin(6, "dl")   # LOW
+
 
 def rightmotorback():
-    in3.off()
-    in4.on()
+    _set_pin(5, "dl")   # LOW
+    _set_pin(6, "dh")   # HIGH
+
 
 def rightmotoroff():
-    in3.off()
-    in4.off()
+    _set_pin(5, "dl")   # LOW
+    _set_pin(6, "dl")   # LOW
 
+
+rightmotorstop = rightmotoroff
+
+
+# Combined Dual-Motor Actions (Both motors active on all directional moves)
 def forward():
     leftmotorforward()
     rightmotorforward()
+
 
 def backward():
     leftmotorback()
     rightmotorback()
 
+
 def turn_left():
     leftmotorback()
     rightmotorforward()
+
 
 def turn_right():
     leftmotorforward()
     rightmotorback()
 
+
 def stop():
-    leftmotoroff()
-    rightmotoroff()
+    leftmotorstop()
+    rightmotorstop()
+
+
+# Ensure all motors start in the OFF state when server boots
+stop()
 
 COMMANDS = {
     "forward": forward,
@@ -90,10 +106,13 @@ COMMANDS = {
     "leftmotorforward": leftmotorforward,
     "leftmotorback": leftmotorback,
     "leftmotoroff": leftmotoroff,
+    "leftmotorstop": leftmotorstop,
     "rightmotorforward": rightmotorforward,
     "rightmotorback": rightmotorback,
     "rightmotoroff": rightmotoroff,
+    "rightmotorstop": rightmotorstop,
 }
+
 
 # =====================================================================
 # 2. LIVE MJPEG STREAMER (Shared + Auto-Sleep When Idle to Save CPU)
@@ -204,20 +223,20 @@ class CameraStream:
                     self._idle_task.cancel()
                 self._idle_task = asyncio.create_task(self._schedule_idle_stop())
 
+
 camera = CameraStream()
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    stop()
     yield
     stop()
     await camera.stop_stream()
-    for pin in (in1, in2, in3, in4):
-        try:
-            pin.close()
-        except Exception:
-            pass
+
 
 app = FastAPI(title="Shelly Control Panel & RC Rover", lifespan=lifespan)
+
 
 # =====================================================================
 # 3. ROUTES & WEBSOCKETS
@@ -226,21 +245,27 @@ app = FastAPI(title="Shelly Control Panel & RC Rover", lifespan=lifespan)
 async def serve_index():
     return FileResponse(BASE_DIR / "index.html")
 
+
 @app.get("/rc")
+@app.get("/rc.html")
 async def serve_rc():
     return FileResponse(BASE_DIR / "rc.html")
+
 
 @app.get("/style.css")
 async def serve_css():
     return FileResponse(BASE_DIR / "style.css")
 
+
 @app.get("/script.js")
 async def serve_js():
     return FileResponse(BASE_DIR / "script.js")
 
+
 @app.get("/config.json")
 async def serve_config():
     return FileResponse(BASE_DIR / "config.json")
+
 
 @app.get("/video_feed")
 async def video_feed():
@@ -248,6 +273,7 @@ async def video_feed():
         camera.frame_generator(),
         media_type="multipart/x-mixed-replace; boundary=frame"
     )
+
 
 @app.websocket("/ws/control")
 async def websocket_control(websocket: WebSocket):

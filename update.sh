@@ -41,7 +41,7 @@ Wants=network-online.target
 
 [Service]
 Type=simple
-User=shelly
+User=root
 WorkingDirectory=$REPO_DIR
 ExecStart="$REPO_DIR/venv/bin/uvicorn" main:app --host 0.0.0.0 --port 8000 --workers 1
 Restart=always
