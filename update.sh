@@ -10,9 +10,10 @@ echo "=== Updating Shelly Control Center ==="
 
 cd "$REPO_DIR"
 
-# 1. Pull latest commits from GitHub
+# 1. Pull latest commits from GitHub (force-sync with origin/main so chmod never blocks git pull)
 echo "[1/4] Pulling latest changes from git..."
-git pull
+git fetch origin
+git reset --hard origin/main
 
 # 2. Copy all web assets to /var/www/html (where Apache/Nginx hosts the site)
 echo "[2/4] Copying website files to $WEB_DIR..."
