@@ -181,9 +181,20 @@
         let currentCmd = 'stop';
         const heldKeys = new Set();
 
+        // Auto-detect backend port: if loaded from standard HTTP port 80/443 without port in URL, default to FastAPI port 8000
+        const isStandardWebPort = window.location.port === '' || window.location.port === '80';
+        const apiHost = isStandardWebPort ? `${window.location.hostname}:8000` : window.location.host;
+
+        // Update video feed stream source
+        const streamImg = document.getElementById('rc-camera-stream');
+        if (streamImg) {
+            const httpProto = window.location.protocol;
+            streamImg.src = `${httpProto}//${apiHost}/video_feed`;
+        }
+
         function connectWS() {
             const proto = window.location.protocol === 'https:' ? 'wss' : 'ws';
-            ws = new WebSocket(`${proto}://${window.location.host}/ws/control`);
+            ws = new WebSocket(`${proto}://${apiHost}/ws/control`);
 
             ws.onopen = () => {
                 wsDot.classList.add('online');

@@ -216,7 +216,9 @@ function applyCardVisibility(vis) {
             if (card.id === 'card-rc-rover') {
                 const roverImg = document.getElementById('rover-feed');
                 if (roverImg) {
-                    const targetSrc = isVisible ? '/video_feed' : '';
+                    const isStandardWebPort = window.location.port === '' || window.location.port === '80';
+                    const apiHost = isStandardWebPort ? `${window.location.hostname}:8000` : window.location.host;
+                    const targetSrc = isVisible ? `${window.location.protocol}//${apiHost}/video_feed` : '';
                     if (roverImg.getAttribute('src') !== targetSrc) {
                         roverImg.setAttribute('src', targetSrc);
                     }
