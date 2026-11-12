@@ -9,89 +9,91 @@ from fastapi.responses import StreamingResponse, FileResponse
 BASE_DIR = Path(__file__).resolve().parent
 
 # =====================================================================
-# 1. MOTOR CONTROL (Direct pinctrl op dh/dl matching hardware pseudocode)
+# 1. MOTOR CONTROL (Simultaneous multi-pin pinctrl op dh/dl)
 # =====================================================================
 HAS_PINCTRL = shutil.which("pinctrl") is not None
 
 
-def _set_pin(pin: int, level: str):
+def _set_pins(pins: str, level: str):
     """
-    Sets a GPIO pin to output mode ('op') and drives it HIGH ('dh') or LOW ('dl')
-    using Raspberry Pi's native `pinctrl` utility.
+    Sets one or more comma-separated GPIO pins (e.g. '17,5') to output mode ('op')
+    and drives them HIGH ('dh') or LOW ('dl') in a single atomic pinctrl call
+    so both motors receive their signal at the exact same microsecond.
     """
     if HAS_PINCTRL:
         subprocess.run(
-            ["pinctrl", "set", str(pin), "op", level],
+            ["pinctrl", "set", str(pins), "op", level],
             stdout=subprocess.DEVNULL,
             stderr=subprocess.DEVNULL,
             check=False,
         )
     else:
-        print(f"[MOCK PINCTRL] pinctrl set {pin} op {level}")
+        print(f"[MOCK PINCTRL] pinctrl set {pins} op {level}")
 
 
-# Left Motor (GPIO 17 & 27)
+# Individual Motor Functions (matching pseudocode)
 def leftmotorforward():
-    _set_pin(17, "dh")  # HIGH
-    _set_pin(27, "dl")  # LOW
+    _set_pins("27", "dl")  # LOW
+    _set_pins("17", "dh")  # HIGH
 
 
 def leftmotorback():
-    _set_pin(17, "dl")  # LOW
-    _set_pin(27, "dh")  # HIGH
+    _set_pins("17", "dl")  # LOW
+    _set_pins("27", "dh")  # HIGH
 
 
 def leftmotoroff():
-    _set_pin(17, "dl")  # LOW
-    _set_pin(27, "dl")  # LOW
+    _set_pins("17,27", "dl")  # BOTH LOW
 
 
 leftmotorstop = leftmotoroff
 
 
-# Right Motor (GPIO 5 & 6)
 def rightmotorforward():
-    _set_pin(5, "dh")   # HIGH
-    _set_pin(6, "dl")   # LOW
+    _set_pins("6", "dl")   # LOW
+    _set_pins("5", "dh")   # HIGH
 
 
 def rightmotorback():
-    _set_pin(5, "dl")   # LOW
-    _set_pin(6, "dh")   # HIGH
+    _set_pins("5", "dl")   # LOW
+    _set_pins("6", "dh")   # HIGH
 
 
 def rightmotoroff():
-    _set_pin(5, "dl")   # LOW
-    _set_pin(6, "dl")   # LOW
+    _set_pins("5,6", "dl")   # BOTH LOW
 
 
 rightmotorstop = rightmotoroff
 
 
-# Combined Dual-Motor Actions (Both motors active on all directional moves)
+# Combined Dual-Motor Actions (Fires both motors simultaneously in one pinctrl call)
 def forward():
-    leftmotorforward()
-    rightmotorforward()
+    # Left (17=dh, 27=dl) + Right (5=dh, 6=dl) simultaneously
+    _set_pins("27,6", "dl")
+    _set_pins("17,5", "dh")
 
 
 def backward():
-    leftmotorback()
-    rightmotorback()
+    # Left (17=dl, 27=dh) + Right (5=dl, 6=dh) simultaneously
+    _set_pins("17,5", "dl")
+    _set_pins("27,6", "dh")
 
 
 def turn_left():
-    leftmotorback()
-    rightmotorforward()
+    # Left back (17=dl, 27=dh) + Right forward (5=dh, 6=dl) simultaneously
+    _set_pins("17,6", "dl")
+    _set_pins("27,5", "dh")
 
 
 def turn_right():
-    leftmotorforward()
-    rightmotorback()
+    # Left forward (17=dh, 27=dl) + Right back (5=dl, 6=dh) simultaneously
+    _set_pins("27,5", "dl")
+    _set_pins("17,6", "dh")
 
 
 def stop():
-    leftmotorstop()
-    rightmotorstop()
+    # All 4 motor pins LOW simultaneously
+    _set_pins("17,27,5,6", "dl")
 
 
 # Ensure all motors start in the OFF state when server boots
